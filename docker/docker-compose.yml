@@ -1,0 +1,51 @@
+services:
+  mongodb:
+    image: mongo:8
+    container_name: mercado-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - mercado-network
+
+  mongo-express:
+    image: mongo-express
+    container_name: mercado-mongo-express
+    restart: always
+    depends_on:
+      - mongodb
+    ports:
+      - "8081:8081"
+    environment:
+      # Conexión directa a MongoDB usando el nombre del servicio 'mongodb'
+      ME_CONFIG_MONGODB_URL: mongodb://admin:admin123@mongodb:27017/
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
+      # Credenciales para el acceso web en el navegador
+      ME_CONFIG_BASICAUTH: "true"
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin123
+    networks:
+      - mercado-network
+
+  redis:
+    image: redis:7
+    container_name: mercado-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - mercado-network
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  mercado-network:
