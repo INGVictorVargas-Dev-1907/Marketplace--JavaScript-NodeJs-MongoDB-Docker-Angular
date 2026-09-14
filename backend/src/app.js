@@ -4,6 +4,11 @@ const helmet = require('helmet');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 
+const healthRoutes = require('./routes/health.routes');
+
+const errorMiddleware = require('./middlewares/error.middleware');
+const notFoundMiddleware = require('./middlewares/not-found.middleware');
+
 const app = express();
 
 // Seguridad HTTP
@@ -30,13 +35,13 @@ app.use(cookieParser());
 app.use(compression());
 
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'API funcionando correctamente',
-    timestamp: new Date().toISOString(),
-  });
-});
+// Ruta Health check
+app.use('/api/health', healthRoutes);
+
+// Middleware para rutas no encontradas(404)
+app.use(notFoundMiddleware);
+
+// Middleware de manejo de errores(500)
+app.use(errorMiddleware);
 
 module.exports = app;
